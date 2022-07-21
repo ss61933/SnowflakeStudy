@@ -1,4 +1,4 @@
-   // Handling nested data
+   // Handling nested data- Combination of array with nested query 
    
 SELECT RAW_FILE:job as job  FROM OUR_FIRST_DB.PUBLIC.JSON_RAW;
 
