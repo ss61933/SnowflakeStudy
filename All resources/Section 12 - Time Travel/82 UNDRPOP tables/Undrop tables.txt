@@ -1,4 +1,4 @@
-           
+// capabiliy to unlock the objects            
 // Setting up table
 
 CREATE OR REPLACE STAGE MANAGE_DB.external_stages.time_travel_stage
@@ -24,14 +24,17 @@ SELECT * FROM OUR_FIRST_DB.public.customers;
 
 
 // UNDROP command - Tables
+//so by mistake if we drop the table 
 
 DROP TABLE OUR_FIRST_DB.public.customers;
 
 SELECT * FROM OUR_FIRST_DB.public.customers;
 
+//so to restore the  table
+
 UNDROP TABLE OUR_FIRST_DB.public.customers;
 
-
+--------------similarlry we can work with schema and database -------
 // UNDROP command - Schemas
 
 DROP SCHEMA OUR_FIRST_DB.public;
@@ -51,7 +54,7 @@ UNDROP DATABASE OUR_FIRST_DB;
 
 
 
-
+------------------------------------------------------------------
 
 // Restore replaced table 
 
@@ -66,18 +69,25 @@ SET JOB = 'Data Analyst';
 
 
 // // // Undroping a with a name that already exists
-
+// here we undo only 2nd update     
 CREATE OR REPLACE TABLE OUR_FIRST_DB.public.customers as
 SELECT * FROM OUR_FIRST_DB.public.customers before (statement => '019b9f7c-0500-851b-0043-4d83000762be')
+;
+
+//now beyond this time travel  wont work as we rereated the table ..
+
+SELECT * FROM OUR_FIRST_DB.public.customers;
 
 
-SELECT * FROM OUR_FIRST_DB.public.customers
-
+//But we can restore the table befroe which lets rename the table  as below wil lgive error 
 UNDROP table OUR_FIRST_DB.public.customers;
 
 ALTER TABLE OUR_FIRST_DB.public.customers
 RENAME TO OUR_FIRST_DB.public.customers_wrong;
 
 
-DESC table OUR_FIRST_DB.public.customers
+DESC table OUR_FIRST_DB.public.customers;
     
+    
+UNDROP table OUR_FIRST_DB.public.customers;
+ //Table will be restored   

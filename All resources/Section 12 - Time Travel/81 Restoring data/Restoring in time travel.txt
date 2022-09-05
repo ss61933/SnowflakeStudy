@@ -26,36 +26,41 @@ SET LAST_NAME = 'Tyson';
 UPDATE OUR_FIRST_DB.public.test
 SET JOB = 'Data Analyst';
 
-SELECT * FROM OUR_FIRST_DB.public.test before (statement => '019b9eea-0500-845a-0043-4d830007402a')
+
+//now we can open the history and get the query id 
+SELECT * FROM OUR_FIRST_DB.public.test before (statement => '01a6c3d6-3200-86f5-0001-b0ba000100ae');
 
 
 
-// // // Bad method
+// // // Bad method  -restoring the data 
 
+// first restore with 2nd update 
 CREATE OR REPLACE TABLE OUR_FIRST_DB.public.test as
-SELECT * FROM OUR_FIRST_DB.public.test before (statement => '019b9eea-0500-845a-0043-4d830007402a')
+SELECT * FROM OUR_FIRST_DB.public.test before (statement => '01a6c3d6-3200-86f5-0001-b0ba000100ae');
 
 
-SELECT * FROM OUR_FIRST_DB.public.test
+SELECT * FROM OUR_FIRST_DB.public.test;
 
-
+// now update with veryf first sql --here we will get an error 
 CREATE OR REPLACE TABLE OUR_FIRST_DB.public.test as
-SELECT * FROM OUR_FIRST_DB.public.test before (statement => '019b9eea-0500-8473-0043-4d830007307a')
+SELECT * FROM OUR_FIRST_DB.public.test before (statement => '019b9eea-0500-8473-0043-4d830007307a');
+
+//Reason why above method is bad as if we directly do the replace in original table and doing so if we refer to wrong sql id ,
+// then we cannot further go back and recreate the table with correct sql id 
+//we will get the error  that requested tiem is beyong object creation 
 
 
+// // // Good method - hence always populate the dummy stage table with back data , validate it and then put it in main table .
 
-
-
-// // // Good method
 
 CREATE OR REPLACE TABLE OUR_FIRST_DB.public.test_backup as
-SELECT * FROM OUR_FIRST_DB.public.test before (statement => '019b9ef0-0500-8473-0043-4d830007309a')
+SELECT * FROM OUR_FIRST_DB.public.test before (statement => '019b9ef0-0500-8473-0043-4d830007309a');
 
-TRUNCATE OUR_FIRST_DB.public.test
+TRUNCATE OUR_FIRST_DB.public.test;
 
 INSERT INTO OUR_FIRST_DB.public.test
-SELECT * FROM OUR_FIRST_DB.public.test_backup
+SELECT * FROM OUR_FIRST_DB.public.test_backup;
 
 
 
-SELECT * FROM OUR_FIRST_DB.public.test 
+SELECT * FROM OUR_FIRST_DB.public.test ;

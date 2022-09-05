@@ -1,0 +1,49 @@
+-- as we have seen that all context functions are functions in snowflake, and it needs to be part of the select statement
+-- so lets see how to list all functions in the snowflake
+show functions like 'CURRENT%IP%';
+
+select current_ip_address();
+//this qury execute without any computation cost 
+
+-- use it to set variable value
+set my_ip_address = current_ip_address();
+select $my_ip_address;
+
+-- Step-3 
+-- let's run a query on login history
+use role accountadmin;
+select * from "SNOWFLAKE"."ACCOUNT_USAGE"."LOGIN_HISTORY" limit 10;
+//login history shows cleint ip for all login events 
+
+
+//when logged in from webui , you will see 2 sessions. 1 for webui instance and other for worksheet
+//if u login from some other tool then only 1 session will appear
+
+--to get only  important columns , 
+select event_id, event_type, user_name, 
+    first_authentication_factor, 
+    second_authentication_factor, 
+    is_success from "SNOWFLAKE"."ACCOUNT_USAGE"."LOGIN_HISTORY" limit 10;
+
+-- Step 4 we can get client details in below view as well 
+use role accountadmin;
+select * from "SNOWFLAKE"."ACCOUNT_USAGE"."SESSIONS";
+
+-- Step 5
+--- which query is fired by whom using what kind of client and what kind of authenticaion is used and from which ip
+use role accountadmin;
+select * from "SNOWFLAKE"."ACCOUNT_USAGE"."QUERY_HISTORY" limit 10;
+
+
+-- lets build a report
+use role accountadmin;
+use database SNOWFLAKE;
+use schema ACCOUNT_USAGE;
+use warehouse compute_wh;
+select s.user_name, s.session_id, qh.query_id,qh.query_text, lh.reported_client_type, lh.client_ip from 
+    QUERY_HISTORY qh join sessions s on s.session_id = qh.session_id
+                     join LOGIN_HISTORY lh on s.login_event_id = lh.event_id;
+                     
+                     
+    // Make a note that if you have any task scheudled , which fetched and inserts current ip address 
+    // then null value will be returned 

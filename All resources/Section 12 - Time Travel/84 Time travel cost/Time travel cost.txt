@@ -1,10 +1,13 @@
+// low time retention we will need low memory 
+// high time retention , we will need more and more memory and hence we  need to choose carefully 
+
 
 SELECT * FROM SNOWFLAKE.ACCOUNT_USAGE.STORAGE_USAGE ORDER BY USAGE_DATE DESC;
 
 
 SELECT * FROM SNOWFLAKE.ACCOUNT_USAGE.TABLE_STORAGE_METRICS;
 
-// Query time travel storage
+// Query time travel storage , below query wil show how much storage needed  for active table and its bacup/ time travel 
 SELECT 	ID, 
 		TABLE_NAME, 
 		TABLE_SCHEMA,

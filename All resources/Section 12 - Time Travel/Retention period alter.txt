@@ -1,0 +1,22 @@
+//default retention period is 1 day
+
+ use database manage_db;
+create table custom(ids int);
+insert into custom values(1);
+
+//here u will see default retention period to  1
+show tables like '%CUSTOM%' ;
+
+ //we can change the period as below 
+ 
+ alter table custom 
+ set data_retention_time_in_days=2;
+ 
+ //also we can set the property while table creation
+ 
+ create table custom1
+ (ids int,
+ ids2 int)
+  data_retention_time_in_days=2;
+  
+  //if this value is set to zero means we cannot time travel and retreive the data 

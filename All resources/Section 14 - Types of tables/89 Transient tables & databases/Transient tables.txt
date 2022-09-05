@@ -1,4 +1,5 @@
 CREATE OR REPLACE DATABASE TDB;
+use database tdb;
 
 CREATE OR REPLACE TRANSIENT TABLE TDB.public.customers_transient (
    id int,
@@ -12,7 +13,7 @@ CREATE OR REPLACE TRANSIENT TABLE TDB.public.customers_transient (
 INSERT INTO TDB.public.customers_transient
 SELECT t1.* FROM OUR_FIRST_DB.public.customers t1
 CROSS JOIN (SELECT * FROM OUR_FIRST_DB.public.customers) t2
-
+;
 SHOW TABLES;
 
 
@@ -37,18 +38,30 @@ SELECT 	ID,
 FROM SNOWFLAKE.ACCOUNT_USAGE.TABLE_STORAGE_METRICS
 WHERE TABLE_CATALOG ='TDB'
 ORDER BY TABLE_CREATED DESC;
+// here we wil lsee fail say bytes are alwasy zero for transient tables
+
 
 // Set retention time to 0
 
 ALTER TABLE TDB.public.customers_transient
-SET DATA_RETENTION_TIME_IN_DAYS  = 0
+SET DATA_RETENTION_TIME_IN_DAYS  = 0 or 1 ;
+// we cannot update this values >1 
+
 
 DROP TABLE TDB.public.customers_transient;
 
-UNDROP TABLE TDB.public.customers_transient;
+show tables ;
 
+UNDROP TABLE TDB.public.customers_transient;
+// we can recover the transient table 
 SHOW TABLES;
 
+select * from  TDB.public.customers_transient;
+insert into  TDB.public.customers_transient values (1,'a','a','a','a','a','a');
+select * from  TDB.public.customers_transient;
+
+
+SELECT * FROM SNOWFLAKE.ACCOUNT_USAGE.TABLE_STORAGE_METRICS where table_name like '%CUST%';
 
 // Creating transient schema and then table 
 
