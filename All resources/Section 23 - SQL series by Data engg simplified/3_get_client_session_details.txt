@@ -1,5 +1,6 @@
 -- as we have seen that all context functions are functions in snowflake, and it needs to be part of the select statement
 -- so lets see how to list all functions in the snowflake
+--https://www.youtube.com/watch?v=2OkykRh4tDA&list=PLba2xJ7yxHB6LbOdzpqRB0WQE7IPWbbSy&index=3
 show functions like 'CURRENT%IP%';
 
 select current_ip_address();

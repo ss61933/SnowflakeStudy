@@ -1,0 +1,73 @@
+--this is source refence table 
+create table source_t
+(id int);
+insert into source_t values(1);
+insert into source_t values(2);
+insert into source_t values(3);
+insert into source_t values(4);
+insert into source_t values(5);
+
+select * from source_t;
+
+create table stage_t
+(id int);
+
+select * from stage_t;
+
+create or replace stream source_insert_stream on table stage_t;
+
+--to get changes on stage using stream 
+select * from source_insert_stream;
+
+create table target_t
+(id int);
+
+select * from target_t;
+
+------------setup completed------------
+
+show streams;
+
+desc stream source_insert_stream;
+
+--lets load some data in stage
+insert into stage_t values(2);
+
+
+--check the stream
+select * from source_insert_stream;
+
+
+--consume stream object 
+insert into target_t
+select t.id
+from source_insert_stream t
+left join source_t r on (t.id=r.id);
+
+
+select * from target_t; --target table is populated
+
+select * from source_insert_stream; -- stream is empty
+
+select * from stage_t;-- stage will have the record 
+
+--now add one more row to stage
+
+insert into stage_t values(4);
+
+select * from stage_t;-- it have 2 rows 
+
+--get changes from stream -- it will show only id 4 as 2 is already processed . It means only delta is stored 
+select * from source_insert_stream;
+
+
+--insert into target 
+insert into target_t
+select t.id
+from source_insert_stream t
+left join source_t r on (t.id=r.id);
+
+
+select * from target_t;--its populated with id 4 
+
+select * from source_insert_stream; -- stream is empty 

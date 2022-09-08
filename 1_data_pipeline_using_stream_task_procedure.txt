@@ -1,0 +1,123 @@
+--Building a data pipeline using stored procedure ,task stream
+
+--Step1 create source and target table 
+
+CREATE TABLE source_table
+(
+uuid varchar,
+inserted_at timestamp 
+);
+
+
+CREATE TABLE target_table
+(
+uuid varchar,
+source_inserted_at timestamp ,
+target_inserted_at timestamp
+);
+
+--Step2 create a stream on source table 
+
+CREATE OR REPLACE STREAM source_table_stream_append
+ON TABLE source_table APPEND_ONLY=TRUE ;
+
+
+--Step3 create a procedure and test it 
+
+--Step3 create a procedure 
+
+CREATE OR REPLACE PROCEDURE source_table_stream_proceudre()
+returns string not null
+language javascript 
+as 
+
+$$
+
+var insert_cmd=`INSERT INTO source_table 
+                SELECT uuid_string(),current_timestamp::timestamp_ntz`;
+
+var sql_insert  = snowflake.createStatement({sqlText: insert_cmd});
+var insert_result = sql_insert.execute();
+
+
+var insert_target_cmd=
+`
+  INSERT INTO TARGET_TABLE
+  SELECT
+    uuid,
+    inserted_at,
+    current_timestamp::timestamp_ntz
+  FROM 
+    SOURCE_TABLE_STREAM_APPEND
+  WHERE
+    METADATA$ACTION='INSERT';
+`
+
+var sql_insert1  = snowflake.createStatement({sqlText: insert_target_cmd});
+var insert_result1 = sql_insert1.execute();
+
+
+return "SUCCESS";
+
+
+$$;
+
+
+call  source_table_stream_proceudre();
+
+select * from source_table;
+select * from source_table_stream_append;
+select * from target_table;
+
+------------------------------------------------------
+
+
+--Step4 create a task 
+CREATE OR REPLACE TASK source_table_stream_procedure_task
+  WAREHOUSE=COMPUTE_WH
+  SCHEDULE ='1 MINUTE'
+WHEN 
+    system$stream_has_data('SOURCE_TABLE_STREAM_APPEND')
+as 
+    call  source_table_stream_proceudre();
+
+--Defult status for task is suspended when created 
+DESC TASK source_table_stream_procedure_task;
+
+--ENABLE THE TASK
+ALTER TASK source_table_stream_procedure_task RESUME;
+
+--VERIFY THE SCHEDULE FOR THE TASK
+
+SELECT *
+FROM table(
+  information_schema.task_history(
+    task_name=>'source_table_stream_procedure_task'
+    ,scheduled_time_range_start=>dateadd('hour',-1,current_timestamp())
+  )
+ 
+) order by run_id asc;
+
+-- You will observe that state will be SKIPPED as we are checking if stream has data , we are inserting data inside proc only
+--lets  insert data manually.
+
+INSERT INTO source_table 
+                SELECT uuid_string(),current_timestamp::timestamp_ntz;
+commit;
+
+--we will have data in stream
+select * from source_table_stream_append;
+
+--check the table and stream after 1 minute 
+
+--insert into table so that 
+select * from source_table;
+select * from source_table_stream_append;
+select * from target_table order by target_inserted_at desc;
+
+
+--
+--execute task manually 
+execute task source_table_stream_procedure_task;
+
+

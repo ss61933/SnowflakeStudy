@@ -1,0 +1,10 @@
+create or replace task task_cus_insert
+warehouse=compute_wh
+schedule='1 minute'
+when 1=1 as 
+truncate table customers;
+
+
+alter task task_cus_insert RESUME;
+
+select * from customers;
