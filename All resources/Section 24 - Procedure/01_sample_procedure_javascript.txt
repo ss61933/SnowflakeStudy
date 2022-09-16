@@ -1,0 +1,29 @@
+create or replace procedure get_count(table_name VARCHAR)
+returns float not null
+language javascript
+as
+$$
+
+var rowcount=0;
+
+//dynamic sql
+
+var sqlcount="select count(*) from "+ table_name;
+
+
+var sqlcommand= snowflake.createStatement
+            (
+              {sqlText: sqlcount}
+            );
+//Execute command 
+              
+var result = sqlcommand.execute();              
+
+
+return result;
+
+$$;
+      
+              --https://dwgeek.com/snowflake-dynamic-sql-queries-and-examples.html/
+              
+              call procedure get_count('CUSTOMER');

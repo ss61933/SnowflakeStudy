@@ -1,0 +1,30 @@
+create or replace procedure sp_Exception()
+returns varchar not null
+language javascript
+as
+$$
+
+var result="";
+try
+{
+snowflake.execute
+    (
+        {
+            sqlText:"Select current_dbs()"
+        }
+    );
+}
+
+catch(err)
+{
+    result="Failed code: "+err.code+ "\n State "+err.state;
+    result += "\n message "+err.message;
+    result += "\n Stack error "+err.stackTraceTxt;
+
+}
+
+return result;
+$$;
+
+
+call sp_Exception();

@@ -1,0 +1,39 @@
+create or replace procedure read_multiple_record(status string,sal string )
+returns string
+language javascript
+
+as
+
+$$
+//dynamic sql
+
+var sqlcount="select first_name,last_name from customer where cust_status =? and salutation=?";
+
+var sqlcommand= snowflake.createStatement
+            (
+              {
+              sqlText: sqlcount,
+              binds: [STATUS,SAL]
+              }
+            );
+//Execute command 
+              
+var result_set= sqlcommand.execute();              
+
+var return_op="";
+
+//iterate through the result set
+
+while(result_set.next())
+{
+return_op  += "\n";
+return_op  += result_set.getColumnValue(1)+" ";
+return_op  += result_set.getColumnValue(2) +",";
+}
+
+return return_op;
+$$
+;
+     
+call read_multiple_record('Active','Mr.');
+select * from customer;

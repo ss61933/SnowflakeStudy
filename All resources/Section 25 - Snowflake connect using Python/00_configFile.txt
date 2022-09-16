@@ -1,0 +1,5 @@
+username='E139162'
+password='Ss0061933!'
+account='wi35372.ap-southeast-1'
+warehouse='compute_wh'
+database='demo_db'

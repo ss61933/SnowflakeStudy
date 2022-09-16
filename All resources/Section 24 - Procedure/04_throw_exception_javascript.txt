@@ -1,0 +1,35 @@
+create or replace procedure throw_exception()
+returns varchar not null
+language javascript
+as
+$$
+var op=0;
+var return_op="";
+try
+{
+
+      
+    
+    if(2<3) 
+    {
+        return_op="Failure";
+
+        throw return_op;
+     }
+    else
+    {
+        return "Success";
+    }
+}
+
+catch(err)
+{   
+    return "Error is :"+ err;
+}
+
+
+$$;
+
+
+call throw_exception();
+
